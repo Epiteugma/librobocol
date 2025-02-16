@@ -1,4 +1,5 @@
-import { readLong, readShort, writeLong, writeShort } from '../buffer_utils';
+import { readLong, readShort, writeLong } from '../buffer_utils';
+import { RobotState } from '../types';
 import Packet from './packet';
 
 export default class Heartbeat extends Packet {
@@ -6,7 +7,7 @@ export default class Heartbeat extends Packet {
     seq_num = 0;
 
     timestamp: bigint;
-    robot_state: number;
+    robot_state: RobotState;
 
     t0: bigint; t1: bigint; t2: bigint;
     timezone_id: string;

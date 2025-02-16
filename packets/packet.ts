@@ -3,6 +3,7 @@ import Heartbeat from './heartbeat';
 import Gamepad from './gamepad';
 import PeerDiscovery from './peer_discovery';
 import KeepAlive from './keep_alive';
+import Telemetry from './telemetry';
 
 export default abstract class Packet {
     static readonly BYTE_ORDER = ByteOrder.BE;
@@ -25,7 +26,7 @@ export default abstract class Packet {
     };
 }
 
-export type DeserializeResult = Heartbeat | Gamepad | PeerDiscovery | KeepAlive | undefined;
+export type DeserializeResult = Heartbeat | Gamepad | PeerDiscovery | Telemetry | KeepAlive | undefined;
 
 export function deserialize(buf: Uint8Array): DeserializeResult {
     let packet: DeserializeResult;
@@ -35,7 +36,7 @@ export function deserialize(buf: Uint8Array): DeserializeResult {
         case (packet = new Gamepad()).uid:
         case (packet = new PeerDiscovery()).uid:
         // TODO: 4 = command
-        // TODO: 5 = telemetry
+        case (packet = new Telemetry()).uid:
         case (packet = new KeepAlive()).uid:
             break;
     }
