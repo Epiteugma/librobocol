@@ -15,11 +15,12 @@ export default class PeerDiscovery extends Packet {
     robocol_version = 124;
     peer_type = PeerType.Peer;
     
-    sdk_build_month = 0;
-    sdk_build_year = 0;
+    // 10.1.1
+    sdk_build_month = 11;
+    sdk_build_year = 2024;
 
-    sdk_major_version = 0;
-    sdk_minor_version = 0;
+    sdk_major_version = 10;
+    sdk_minor_version = 1;
 
     serialize() {
         let buf = new Uint8Array(13);
