@@ -110,11 +110,11 @@ export default class Telemetry extends Packet {
         this.robot_state = buf[14];
 
         let decoder = new TextDecoder();
-        let tag_length = readShort(buf, 15, Packet.BYTE_ORDER);;
-        this.tag = decoder.decode(buf.slice(17, 17 + tag_length));
+        let tag_length = buf[15];
+        this.tag = decoder.decode(buf.slice(16, 16 + tag_length));
 
-        let string_count = readShort(buf, 17 + tag_length, Packet.BYTE_ORDER);
-        let offset = 19 + tag_length;
+        let string_count = buf[16 + tag_length];
+        let offset = 17 + tag_length;
 
         for (let i = 0; i < string_count; i++) {
             let key_length = readShort(buf, offset, Packet.BYTE_ORDER);
