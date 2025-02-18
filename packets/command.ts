@@ -27,10 +27,12 @@ export default class Command extends Packet {
             buf[16 + i] = name_bytes[i];
         }
 
-        writeShort(buf, 16 + name_bytes.length, extra_bytes.length, Packet.BYTE_ORDER);
+        if (!this.acknowledged) {
+            writeShort(buf, 16 + name_bytes.length, extra_bytes.length, Packet.BYTE_ORDER);
 
-        for (let i = 0; i < extra_bytes.length; i++) {
-            buf[18 + name_bytes.length + i] = extra_bytes[i];
+            for (let i = 0; i < extra_bytes.length; i++) {
+                buf[18 + name_bytes.length + i] = extra_bytes[i];
+            }
         }
 
         return buf;
