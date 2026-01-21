@@ -1,11 +1,11 @@
-import { readLong, readShort, writeLong, writeShort } from '../buffer_utils';
+import { readLong, readShort, writeLong, writeShort } from '../bufferUtils';
 import Packet from './packet';
 
 export default class Command extends Packet {
     uid = 4;
-    seq_num = 0;
+    seqNum = 0;
 
-    timestamp: bigint;
+    timestamp = 0n;
     acknowledged = false;
 
     name: string;
@@ -14,24 +14,24 @@ export default class Command extends Packet {
     serialize(): Uint8Array {
         let encoder = new TextEncoder();
 
-        let name_bytes = encoder.encode(this.name);
-        let extra_bytes = typeof this.extra === 'string' ? encoder.encode(this.extra) : encoder.encode(JSON.stringify(this.extra));
+        let nameBytes = encoder.encode(this.name);
+        let extraBytes = typeof this.extra === 'string' ? encoder.encode(this.extra) : encoder.encode(JSON.stringify(this.extra));
 
-        let buf = this.with_header(13 + name_bytes.length + extra_bytes.length);
+        let buf = this.withHeader(13 + nameBytes.length + extraBytes.length);
 
         writeLong(buf, 5, this.timestamp, Packet.BYTE_ORDER);
         buf[13] = this.acknowledged ? 1 : 0;
-        writeShort(buf, 14, name_bytes.length, Packet.BYTE_ORDER);
+        writeShort(buf, 14, nameBytes.length, Packet.BYTE_ORDER);
 
-        for (let i = 0; i < name_bytes.length; i++) {
-            buf[16 + i] = name_bytes[i];
+        for (let i = 0; i < nameBytes.length; i++) {
+            buf[16 + i] = nameBytes[i];
         }
 
         if (!this.acknowledged) {
-            writeShort(buf, 16 + name_bytes.length, extra_bytes.length, Packet.BYTE_ORDER);
+            writeShort(buf, 16 + nameBytes.length, extraBytes.length, Packet.BYTE_ORDER);
 
-            for (let i = 0; i < extra_bytes.length; i++) {
-                buf[18 + name_bytes.length + i] = extra_bytes[i];
+            for (let i = 0; i < extraBytes.length; i++) {
+                buf[18 + nameBytes.length + i] = extraBytes[i];
             }
         }
 
@@ -39,23 +39,23 @@ export default class Command extends Packet {
     }
 
     deserialize(buf: Uint8Array) {
-        this.seq_num = readShort(buf, 3, Packet.BYTE_ORDER);
+        this.seqNum = readShort(buf, 3, Packet.BYTE_ORDER);
         this.timestamp = readLong(buf, 5, Packet.BYTE_ORDER);
         this.acknowledged = !!buf[13];
 
         let decoder = new TextDecoder();
-        let name_len = readShort(buf, 14, Packet.BYTE_ORDER);
+        let nameLen = readShort(buf, 14, Packet.BYTE_ORDER);
 
-        this.name = decoder.decode(buf.slice(16, 16 + name_len));
+        this.name = decoder.decode(buf.slice(16, 16 + nameLen));
 
         if (!this.acknowledged) {
-            let extra_len = readShort(buf, 16 + name_len, Packet.BYTE_ORDER);
-            let extra_str = decoder.decode(buf.slice(18 + name_len, 18 + name_len + extra_len));
+            let extraLen = readShort(buf, 16 + nameLen, Packet.BYTE_ORDER);
+            let extraStr = decoder.decode(buf.slice(18 + nameLen, 18 + nameLen + extraLen));
             
             try {
-                this.extra = JSON.parse(extra_str);
+                this.extra = JSON.parse(extraStr);
             } catch {
-                this.extra = extra_str;
+                this.extra = extraStr;
             }
         }
 

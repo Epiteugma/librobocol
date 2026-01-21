@@ -1,4 +1,4 @@
-import { readFloat, readInt, readLong, readShort, writeFloat, writeInt, writeLong } from '../buffer_utils';
+import { readFloat, readInt, readLong, readShort, writeFloat, writeInt, writeLong } from '../bufferUtils';
 import Packet from './packet';
 
 export enum GamepadType {
@@ -38,20 +38,20 @@ export function toLegacyType(gamepadType: GamepadType) {
 
 export default class Gamepad extends Packet {
     uid = 2;
-    seq_num = 0;
+    seqNum = 0;
 
     version = 5;
     type = GamepadType.Unknown;
 
-    left_stick_x = 0;
-    left_stick_y = 0;
-    right_stick_x = 0;
-    right_stick_y = 0;
+    leftStickX = 0;
+    leftStickY = 0;
+    rightStickX = 0;
+    rightStickY = 0;
     
-    dpad_up = false;
-    dpad_down = false;
-    dpad_left = false;
-    dpad_right = false;
+    dpadUp = false;
+    dpadDown = false;
+    dpadLeft = false;
+    dpadRight = false;
 
     a = false;
     b = false;
@@ -62,14 +62,14 @@ export default class Gamepad extends Packet {
     start = false;
     back = false;
 
-    left_bumper = false;
-    right_bumper = false;
+    leftBumper = false;
+    rightBumper = false;
 
-    left_stick_button = false;
-    right_stick_button = false;
+    leftStickButton = false;
+    rightStickButton = false;
 
-    left_trigger = 0;
-    right_trigger = 0;
+    leftTrigger = 0;
+    rightTrigger = 0;
 
     circle = false;
     cross = false;
@@ -80,45 +80,45 @@ export default class Gamepad extends Packet {
     options = false;
 
     touchpad = false;
-    touchpad_finger_1 = false;
-    touchpad_finger_2 = false;
+    touchpadFinger1 = false;
+    touchpadFinger2 = false;
     
-    touchpad_finger_1_x = 0;
-    touchpad_finger_1_y = 0;
+    touchpadFinger1X = 0;
+    touchpadFinger1Y = 0;
 
-    touchpad_finger_2_x = 0;
-    touchpad_finger_2_y = 0;
+    touchpadFinger2X = 0;
+    touchpadFinger2Y = 0;
 
     ps = false;
 
     user = GamepadID.Unassigned;
     id = GamepadID.Unassigned;
-    timestamp = BigInt(0);
+    timestamp = 0n;
 
     serialize() {
-        let buf = this.with_header(60);
+        let buf = this.withHeader(60);
 
         buf[5] = this.version;
 
         if (this.version >= 1) {
             writeInt(buf, 6, this.id, Packet.BYTE_ORDER);
             writeLong(buf, 10, this.timestamp, Packet.BYTE_ORDER);
-            writeFloat(buf, 18, this.left_stick_x, Packet.BYTE_ORDER);
-            writeFloat(buf, 22, this.left_stick_y, Packet.BYTE_ORDER);
-            writeFloat(buf, 26, this.right_stick_x, Packet.BYTE_ORDER);
-            writeFloat(buf, 30, this.right_stick_y, Packet.BYTE_ORDER);
+            writeFloat(buf, 18, this.leftStickX, Packet.BYTE_ORDER);
+            writeFloat(buf, 22, this.leftStickY, Packet.BYTE_ORDER);
+            writeFloat(buf, 26, this.rightStickX, Packet.BYTE_ORDER);
+            writeFloat(buf, 30, this.rightStickY, Packet.BYTE_ORDER);
 
             let buttons = 0;
 
-            buttons |= this.touchpad_finger_1 ? 1 : 0;
-            buttons |= (this.touchpad_finger_2 ? 1 : 0) << 1;
+            buttons |= this.touchpadFinger1 ? 1 : 0;
+            buttons |= (this.touchpadFinger2 ? 1 : 0) << 1;
             buttons |= (this.touchpad ? 1 : 0) << 2;
-            buttons |= (this.left_stick_button ? 1 : 0) << 3;
-            buttons |= (this.right_stick_button ? 1 : 0) << 4;
-            buttons |= (this.dpad_up ? 1 : 0) << 5;
-            buttons |= (this.dpad_down ? 1 : 0) << 6;
-            buttons |= (this.dpad_left ? 1 : 0) << 7;
-            buttons |= (this.dpad_right ? 1 : 0) << 8;
+            buttons |= (this.leftStickButton ? 1 : 0) << 3;
+            buttons |= (this.rightStickButton ? 1 : 0) << 4;
+            buttons |= (this.dpadUp ? 1 : 0) << 5;
+            buttons |= (this.dpadDown ? 1 : 0) << 6;
+            buttons |= (this.dpadLeft ? 1 : 0) << 7;
+            buttons |= (this.dpadRight ? 1 : 0) << 8;
             buttons |= (this.a ? 1 : 0) << 9;
             buttons |= (this.b ? 1 : 0) << 10;
             buttons |= (this.x ? 1 : 0) << 11;
@@ -126,8 +126,8 @@ export default class Gamepad extends Packet {
             buttons |= (this.guide ? 1 : 0) << 13;
             buttons |= (this.start ? 1 : 0) << 14;
             buttons |= (this.back ? 1 : 0) << 15;
-            buttons |= (this.left_bumper ? 1 : 0) << 16;
-            buttons |= (this.right_bumper ? 1 : 0) << 17;
+            buttons |= (this.leftBumper ? 1 : 0) << 16;
+            buttons |= (this.rightBumper ? 1 : 0) << 17;
 
             writeInt(buf, 34, buttons, Packet.BYTE_ORDER);
         }
@@ -145,10 +145,10 @@ export default class Gamepad extends Packet {
         }
 
         if (this.version >= 5) {
-            writeFloat(buf, 41, this.touchpad_finger_1_x, Packet.BYTE_ORDER);
-            writeFloat(buf, 45, this.touchpad_finger_1_y, Packet.BYTE_ORDER);
-            writeFloat(buf, 49, this.touchpad_finger_2_x, Packet.BYTE_ORDER);
-            writeFloat(buf, 53, this.touchpad_finger_2_y, Packet.BYTE_ORDER);
+            writeFloat(buf, 41, this.touchpadFinger1X, Packet.BYTE_ORDER);
+            writeFloat(buf, 45, this.touchpadFinger1Y, Packet.BYTE_ORDER);
+            writeFloat(buf, 49, this.touchpadFinger2X, Packet.BYTE_ORDER);
+            writeFloat(buf, 53, this.touchpadFinger2Y, Packet.BYTE_ORDER);
         }
 
         return buf;
@@ -157,28 +157,28 @@ export default class Gamepad extends Packet {
     deserialize(buf: Uint8Array) {
         if (buf.length < 5 + 33) return; // v1 = len 38
 
-        this.seq_num = readShort(buf, 3, Packet.BYTE_ORDER);
+        this.seqNum = readShort(buf, 3, Packet.BYTE_ORDER);
         this.version = buf[5];
 
         if (this.version >= 1) {
             this.id = readInt(buf, 6, Packet.BYTE_ORDER);
             this.timestamp = readLong(buf, 10, Packet.BYTE_ORDER);
-            this.left_stick_x = readFloat(buf, 18, Packet.BYTE_ORDER);
-            this.left_stick_y = readFloat(buf, 22, Packet.BYTE_ORDER);
-            this.right_stick_x = readFloat(buf, 26, Packet.BYTE_ORDER);
-            this.right_stick_y = readFloat(buf, 30, Packet.BYTE_ORDER);
+            this.leftStickX = readFloat(buf, 18, Packet.BYTE_ORDER);
+            this.leftStickY = readFloat(buf, 22, Packet.BYTE_ORDER);
+            this.rightStickX = readFloat(buf, 26, Packet.BYTE_ORDER);
+            this.rightStickY = readFloat(buf, 30, Packet.BYTE_ORDER);
 
             let buttons = readInt(buf, 34, Packet.BYTE_ORDER);
 
-            this.touchpad_finger_1 = !!(buttons & 0x20000);
-            this.touchpad_finger_2 = !!(buttons & 0x10000);
+            this.touchpadFinger1 = !!(buttons & 0x20000);
+            this.touchpadFinger2 = !!(buttons & 0x10000);
             this.touchpad = !!(buttons & 0x04000);
-            this.left_stick_button = !!(buttons & 0x02000);
-            this.right_stick_button = !!(buttons & 0x02000);
-            this.dpad_up = !!(buttons & 0x01000);
-            this.dpad_down = !!(buttons & 0x00800);
-            this.dpad_left = !!(buttons & 0x00400);
-            this.dpad_right = !!(buttons & 0x00200);
+            this.leftStickButton = !!(buttons & 0x02000);
+            this.rightStickButton = !!(buttons & 0x02000);
+            this.dpadUp = !!(buttons & 0x01000);
+            this.dpadDown = !!(buttons & 0x00800);
+            this.dpadLeft = !!(buttons & 0x00400);
+            this.dpadRight = !!(buttons & 0x00200);
             this.a = !!(buttons & 0x00100);
             this.b = !!(buttons & 0x00080);
             this.x = !!(buttons & 0x00040);
@@ -186,8 +186,8 @@ export default class Gamepad extends Packet {
             this.guide = !!(buttons & 0x00010);
             this.start = !!(buttons & 0x00008);
             this.back = !!(buttons && 0x00004);
-            this.left_bumper = !!(buttons & 0x00002);
-            this.right_bumper = !!(buttons & 0x00001);
+            this.leftBumper = !!(buttons & 0x00002);
+            this.rightBumper = !!(buttons & 0x00001);
         }
 
         if (this.version >= 2) {
@@ -204,10 +204,10 @@ export default class Gamepad extends Packet {
         }
 
         if (this.version >= 5) {
-            this.touchpad_finger_1_x = readFloat(buf, 41, Packet.BYTE_ORDER);
-            this.touchpad_finger_1_y = readFloat(buf, 45, Packet.BYTE_ORDER);
-            this.touchpad_finger_2_x = readFloat(buf, 49, Packet.BYTE_ORDER);
-            this.touchpad_finger_2_y = readFloat(buf, 53, Packet.BYTE_ORDER);
+            this.touchpadFinger1X = readFloat(buf, 41, Packet.BYTE_ORDER);
+            this.touchpadFinger1Y = readFloat(buf, 45, Packet.BYTE_ORDER);
+            this.touchpadFinger2X = readFloat(buf, 49, Packet.BYTE_ORDER);
+            this.touchpadFinger2Y = readFloat(buf, 53, Packet.BYTE_ORDER);
         }
 
         return this;

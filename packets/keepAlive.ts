@@ -1,14 +1,14 @@
-import { readShort, writeShort } from '../buffer_utils';
+import { readShort, writeShort } from '../bufferUtils';
 import Packet from './packet';
 
 export default class KeepAlive extends Packet {
     uid = 6;
-    seq_num = 0;
+    seqNum = 0;
 
     id: number;
 
     serialize() {
-        let buf = this.with_header(1);
+        let buf = this.withHeader(1);
         buf[5] = this.id;
 
         return buf;
@@ -17,7 +17,7 @@ export default class KeepAlive extends Packet {
     deserialize(buf: Uint8Array) {
         if (buf.length < 5 + 1) return;
 
-        this.seq_num = readShort(buf, 3, Packet.BYTE_ORDER);
+        this.seqNum = readShort(buf, 3, Packet.BYTE_ORDER);
         this.id = buf[5];
 
         return this;
