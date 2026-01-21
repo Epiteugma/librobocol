@@ -25,7 +25,7 @@ export function readLong(buf: Uint8Array, offset: number = 0, order: ByteOrder =
         (BigInt(buf[order ? offset + 4 : offset + 3]) << 24n) |
         (BigInt(buf[order ? offset + 5 : offset + 2]) << 16n) |
         (BigInt(buf[order ? offset + 6 : offset + 1]) << 8n) |
-        BigInt(buf[order ? offset + 7 : order]);
+        BigInt(buf[order ? offset + 7 : offset]);
 
     if (value >= 1n << 63n) value -= 1n << 64n;
 
