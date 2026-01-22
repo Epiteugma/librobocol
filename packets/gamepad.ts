@@ -137,7 +137,7 @@ export default class Gamepad extends Packet {
     touchpadFinger2X = 0;
     touchpadFinger2Y = 0;
 
-    user = GamepadID.Unassigned;
+    user = -1;
     id = GamepadID.Unassigned;
     timestamp = 0n;
 
