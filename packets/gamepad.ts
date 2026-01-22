@@ -71,13 +71,61 @@ export default class Gamepad extends Packet {
     leftTrigger = 0;
     rightTrigger = 0;
 
-    circle = false;
-    cross = false;
-    triangle = false;
-    square = false;
+    get cross() {
+        return this.a;
+    }
 
-    share = false;
-    options = false;
+    set cross(v) {
+        this.a = v;
+    }
+
+    get circle() {
+        return this.b;
+    }
+
+    set circle(v) {
+        this.b = v;
+    }
+
+    get square() {
+        return this.x;
+    }
+
+    set square(v) {
+        this.x = v;
+    }
+
+    get triangle() {
+        return this.y;
+    }
+
+    set triangle(v) {
+        this.y = v;
+    }
+    
+    get share() {
+        return this.back;
+    }
+
+    set share(v) {
+        this.back = v;
+    }
+
+    get options() {
+        return this.start;
+    }
+
+    set options(v) {
+        this.start = v;
+    }
+
+    get ps() {
+        return this.guide;
+    }
+
+    set ps(v) {
+        this.guide = v;
+    }
 
     touchpad = false;
     touchpadFinger1 = false;
@@ -88,8 +136,6 @@ export default class Gamepad extends Packet {
 
     touchpadFinger2X = 0;
     touchpadFinger2Y = 0;
-
-    ps = false;
 
     user = GamepadID.Unassigned;
     id = GamepadID.Unassigned;
