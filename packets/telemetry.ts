@@ -21,7 +21,7 @@ export default class Telemetry extends Packet {
 
         let encodedTag = encoder.encode(this.tag);
         let encodedStrings = new Map<Uint8Array, Uint8Array>();
-        let encodedNumbers = new Map<Uint8Array, Uint8Array>();
+        let encodedNumbers = new Map<Uint8Array, number>();
 
         let payloadLength = encodedTag.length + 9;
 
@@ -35,10 +35,7 @@ export default class Telemetry extends Packet {
 
         for (let [key, value] of this.dataNumbers) {
             let encodedKey = encoder.encode(key);
-            let encodedValue = new Uint8Array(4);
-
-            writeFloat(encodedValue, 0, value, Packet.BYTE_ORDER);
-            encodedNumbers.set(encodedKey, encodedValue);
+            encodedNumbers.set(encodedKey, value);
 
             payloadLength += encodedKey.length + 6;
         }
@@ -51,47 +48,36 @@ export default class Telemetry extends Packet {
         buf[14] = this.robotState;
         buf[15] = encodedTag.length;
 
-        for (let i = 0; i < encodedTag.length; i++) {
-            buf[16 + i] = encodedTag[i];
-        }
+        let offset = 16;
 
-        buf[16 + encodedTag.length] = encodedStrings.size;
-        let offset = 17 + encodedTag.length;
+        for (let i = 0; i < encodedTag.length; i++) {
+            buf[offset++] = encodedTag[i];
+        }
+        
+        buf[offset++] = encodedStrings.size;
 
         for (let [key, value] of encodedStrings) {
             writeShort(buf, offset, key.length, Packet.BYTE_ORDER);
+            offset += 2;
+
+            for (let i = 0; i < key.length; i++) buf[offset++] = key[i];
             
-            for (let i = 0; i < key.length; i++) {
-                buf[offset + 2 + i] = key[i];
-            }
-
-            offset += key.length + 2;
             writeShort(buf, offset, value.length, Packet.BYTE_ORDER);
+            offset += 2;
 
-            for (let i = 0; i < value.length; i++) {
-                buf[offset + 2 + i] = value[i];
-            }
-
-            offset += value.length + 2;
+            for (let i = 0; i < value.length; i++) buf[offset++] = value[i];
         }
 
-        buf[offset] = encodedNumbers.size;
-        offset++;
+        buf[offset++] = encodedNumbers.size;
 
         for (let [key, value] of encodedNumbers) {
             writeShort(buf, offset, key.length, Packet.BYTE_ORDER);
+            offset += 2;
 
-            for (let i = 0; i < key.length; i++) {
-                buf[offset + 2 + i] = key[i];
-            }
+            for (let i = 0; i < key.length; i++) buf[offset++] = key[i];
 
-            offset += key.length + 2;
-
-            for (let i = 0; i < value.length; i++) {
-                buf[offset + i] = value[i];
-            }
-
-            offset += value.length; // should always be 4
+            writeFloat(buf, offset, value, Packet.BYTE_ORDER);
+            offset += 4;
         }
 
         return buf;
@@ -111,37 +97,42 @@ export default class Telemetry extends Packet {
 
         let decoder = new TextDecoder();
         let tagLength = buf[15];
-        this.tag = decoder.decode(buf.slice(16, 16 + tagLength));
+        let offset = 16;
 
-        let stringCount = buf[16 + tagLength];
-        let offset = 17 + tagLength;
+        this.tag = decoder.decode(buf.slice(offset, offset + tagLength));
+        offset += tagLength;
+
+        let stringCount = buf[offset++];
 
         for (let i = 0; i < stringCount; i++) {
             let keyLength = readShort(buf, offset, Packet.BYTE_ORDER);
-            let key = decoder.decode(buf.slice(offset + 2, offset + 2 + keyLength));
+            offset += 2;
 
-            offset += keyLength + 2;
+            let key = decoder.decode(buf.slice(offset, offset + keyLength));
+            offset += keyLength;
 
-            let valLength = readShort(buf, offset, Packet.BYTE_ORDER);
-            let value = decoder.decode(buf.slice(offset + 2, offset + 2 + valLength));
+            let valueLength = readShort(buf, offset, Packet.BYTE_ORDER);
+            offset += 2;
+
+            let value = decoder.decode(buf.slice(offset, offset + valueLength));
+            offset += valueLength;
 
             this.dataStrings.set(key, value);
-            offset += valLength + 2;
         }
 
-        let numberCount = buf[offset];
-        offset++;
+        let numberCount = buf[offset++];
 
         for (let i = 0; i < numberCount; i++) {
             let keyLength = readShort(buf, offset, Packet.BYTE_ORDER);
-            let key = decoder.decode(buf.slice(offset + 2, offset + 2 + keyLength));
+            offset += 2;
 
-            offset += keyLength + 2;
+            let key = decoder.decode(buf.slice(offset, offset + keyLength));
+            offset += keyLength;
 
             let value = readFloat(buf, offset, Packet.BYTE_ORDER);
-            this.dataNumbers.set(key, value);
-
             offset += 4;
+
+            this.dataNumbers.set(key, value);
         }
 
         return this;
