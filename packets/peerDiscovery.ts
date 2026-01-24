@@ -15,8 +15,8 @@ export default class PeerDiscovery extends Packet {
     robocolVersion = 124;
     peerType = PeerType.Peer;
     
-    sdkBuildMonth = new Date().getMonth() + 1;
-    sdkBuildYear = new Date().getFullYear();
+    sdkBuildMonth = 8;
+    sdkBuildYear = 2025;
 
     sdkMajorVersion = 11;
     sdkMinorVersion = 0;
