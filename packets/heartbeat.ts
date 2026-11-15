@@ -17,7 +17,7 @@ export default class Heartbeat extends Packet {
         let buf = this.withHeader(8 + 1 + 8 * 3 + 1 + timezoneIdBytes.length);
 
         buf[13] = this.robotState;
-        buf[31] = timezoneIdBytes.length;
+        buf[38] = timezoneIdBytes.length;
 
         writeLong(buf, 5, this.timestamp, Packet.BYTE_ORDER);
         writeLong(buf, 14, this.t0, Packet.BYTE_ORDER);
@@ -25,7 +25,7 @@ export default class Heartbeat extends Packet {
         writeLong(buf, 30, this.t2, Packet.BYTE_ORDER);
 
         for (let i = 0; i < timezoneIdBytes.length; i++) {
-            buf[32 + i] = timezoneIdBytes[i];
+            buf[39 + i] = timezoneIdBytes[i];
         }
 
         return buf;
@@ -42,7 +42,7 @@ export default class Heartbeat extends Packet {
         this.t1 = readLong(buf, 22, Packet.BYTE_ORDER);
         this.t2 = readLong(buf, 30, Packet.BYTE_ORDER);
 
-        this.timezoneId = new TextDecoder().decode(buf.slice(32, 32 + buf[31]));
+        this.timezoneId = new TextDecoder().decode(buf.slice(39, 39 + buf[38]));
         return this;
     }
 }
