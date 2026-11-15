@@ -185,7 +185,7 @@ export default class Gamepad extends Packet {
         }
 
         if (this.version >= 3) {
-            buf[47] = this.type;
+            buf[47] = toLegacyType(this.type);
         }
 
         if (this.version >= 4) {
@@ -235,7 +235,7 @@ export default class Gamepad extends Packet {
             this.y = !!(buttons & 0x20);
             this.guide = !!(buttons & 0x10);
             this.start = !!(buttons & 0x8);
-            this.back = !!(buttons && 0x4);
+            this.back = !!(buttons & 0x4);
             this.leftBumper = !!(buttons & 0x2);
             this.rightBumper = !!(buttons & 0x1);
         }

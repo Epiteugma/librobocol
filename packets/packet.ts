@@ -14,7 +14,7 @@ export default abstract class Packet {
 
         buf[0] = this.uid;
 
-        writeShort(buf, 1, buf.length);
+        writeShort(buf, 1, payloadLength);
         writeShort(buf, 3, this.seqNum);
 
         return buf;
