@@ -39,17 +39,25 @@ export default class Command extends Packet {
     }
 
     deserialize(buf: Uint8Array) {
+        // truncated datagram: ignore it instead of throwing (lengths are unsigned shorts, like the SDK reads them)
+        if (buf.length < 16) return undefined;
+
         this.seqNum = readShort(buf, 3, Packet.BYTE_ORDER);
         this.timestamp = readLong(buf, 5, Packet.BYTE_ORDER);
         this.acknowledged = !!buf[13];
 
         let decoder = new TextDecoder();
-        let nameLen = readShort(buf, 14, Packet.BYTE_ORDER);
+        let nameLen = readShort(buf, 14, Packet.BYTE_ORDER) & 0xffff;
+        if (buf.length < 16 + nameLen) return undefined;
 
         this.name = decoder.decode(buf.slice(16, 16 + nameLen));
 
         if (!this.acknowledged) {
-            let extraLen = readShort(buf, 16 + nameLen, Packet.BYTE_ORDER);
+            if (buf.length < 18 + nameLen) return undefined;
+
+            let extraLen = readShort(buf, 16 + nameLen, Packet.BYTE_ORDER) & 0xffff;
+            if (buf.length < 18 + nameLen + extraLen) return undefined;
+
             let extraStr = decoder.decode(buf.slice(18 + nameLen, 18 + nameLen + extraLen));
             
             try {
